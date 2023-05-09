@@ -70,4 +70,48 @@ module.exports = {
           res.status(500).json(err);
         }
       },
-}
+       // Add a reaction to a thought
+       async addReaction(req, res) {
+        console.log('You are adding an reaction');
+        console.log(req.body);
+    
+        try {
+          const thought = await Thoughts.findOneAndUpdate(
+            { _id: req.params.thoughtId },
+            { $addToSet: { reactions: req.body } },
+            { runValidators: true, new: true }
+          );
+    
+          if (!thought) {
+            return res
+              .status(404)
+              .json({ message: 'No reaction found with that ID :(' });
+          }
+    
+          res.json(thought);
+        } catch (err) {
+          res.status(500).json(err);
+        }
+      },
+
+  // Remove reaction from a thought
+  async removeReaction(req, res) {
+    try {
+      const thought = await Thoughts.findOneAndUpdate(
+        { _id: req.params.thoughtId },
+        { $pull: { reactions: { reactionId: req.params.reactionId } } },
+        { runValidators: true, new: true }
+      );
+
+      if (!thought) {
+        return res
+          .status(404)
+          .json({ message: 'No student found with that ID :(' });
+      }
+
+      res.json(thought);
+    } catch (err) {
+      res.status(500).json(err);
+    }
+  },
+};
